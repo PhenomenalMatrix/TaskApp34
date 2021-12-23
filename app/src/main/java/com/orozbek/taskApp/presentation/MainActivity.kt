@@ -6,6 +6,8 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.orozbek.taskApp.R
 import com.orozbek.taskApp.databinding.ActivityMainBinding
@@ -21,21 +23,21 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-//        viewModel.getShopList()
         setupRecyclerView()
+        initObservers()
+        setupListeners()
+    }
 
-        viewModel.getShopItem(2)
+    private fun setupListeners() {
+//        adapterMain.onShopItemLongClickListener = {
+//            viewModel.changeEnableState(it)
+//        }
+    }
 
-        viewModel.shopItem.observe(this, Observer {
-            viewModel.changeEnableState(it)
-        })
-
+    private fun initObservers() {
         viewModel.shopList.observe(this, Observer {
-            Log.e("TAG", "onCreate: ${it.size}", )
-            adapterMain.shopList = it
+            adapterMain.submitList(it)
         })
-
     }
 
     private fun setupRecyclerView() {
@@ -43,6 +45,29 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             adapterMain = MainAdapter()
             adapter = adapterMain
         }
+
+        val callback = object : ItemTouchHelper.SimpleCallback(
+            0,
+            ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+        ){
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val item = adapterMain.currentList[viewHolder.absoluteAdapterPosition]
+//                viewModel.deleteItem(item)
+            }
+        }
+
+        val itemTouchHelper = ItemTouchHelper(callback)
+        itemTouchHelper.attachToRecyclerView(binding.mainRv)
+
     }
 
 }

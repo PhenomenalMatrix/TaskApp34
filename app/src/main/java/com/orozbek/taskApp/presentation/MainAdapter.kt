@@ -1,23 +1,18 @@
 package com.orozbek.taskApp.presentation
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.orozbek.taskApp.R
 import com.orozbek.taskApp.domain.ShopItem
 import java.lang.RuntimeException
 
-class MainAdapter: RecyclerView.Adapter<MainAdapter.ViewHolder>() {
+class MainAdapter: ListAdapter<ShopItem, MainAdapter.ViewHolder>(ShopItemDiffCallBack()) {
 
-    var shopList = listOf<ShopItem>()
-    set(value) {
-        Log.e("TAG", ": ${value.size} ", )
-        field = value
-        notifyDataSetChanged()
-    }
+    var onShopItemLongClickListener: ((ShopItem) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layout = when (viewType){
@@ -33,19 +28,22 @@ class MainAdapter: RecyclerView.Adapter<MainAdapter.ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.onBind(shopList[position])
+        val shopItem = getItem(position)
+        holder.onBind(shopItem)
+        holder.itemView.setOnLongClickListener {
+            onShopItemLongClickListener?.invoke(shopItem)
+            return@setOnLongClickListener true
+        }
     }
 
     override fun getItemViewType(position: Int): Int {
-        val item = shopList[position]
+        val item = getItem(position)
         return if (item.enabled){
             VIEW_TYPE_ENABLED
         }else{
             VIEW_TYPE_DISABLED
         }
     }
-
-    override fun getItemCount(): Int = shopList.size
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val name = itemView.findViewById<TextView>(R.id.tv_name)
