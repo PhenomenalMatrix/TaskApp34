@@ -14,10 +14,17 @@ class App: Application() {
 
     override fun onCreate() {
         super.onCreate()
-        repository = ShopListRepositoryImpl
-        shopDataBase = Room.databaseBuilder(this, AppDataBase::class.java,"dataBase")
-            .allowMainThreadQueries()
+        shopDataBase = Room.databaseBuilder(
+            applicationContext,
+            AppDataBase::class.java,
+            "dataBase"
+        ) // Разршение на запросы в главном потоке
+//            .allowMainThreadQueries()
+            // Игнор. миграции
+            .fallbackToDestructiveMigration()
             .build()
+        repository = ShopListRepositoryImpl
+
     }
 
 }

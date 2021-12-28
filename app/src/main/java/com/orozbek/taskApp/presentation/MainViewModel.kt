@@ -2,9 +2,13 @@ package com.orozbek.taskApp.presentation
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.orozbek.taskApp.App
 import com.orozbek.taskApp.data.ShopListRepositoryImpl
 import com.orozbek.taskApp.domain.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainViewModel: ViewModel() {
 
@@ -17,6 +21,13 @@ class MainViewModel: ViewModel() {
     val shopList = getShopListUseCase.getShopItemList()
     val shopItem = MutableLiveData<ShopItem>()
 
+    private val scope = CoroutineScope(Dispatchers.Default)
+
+    fun addShopItem(shopItem: ShopItem){
+        scope.launch {
+            addShopItemUseCase.addShopItem(shopItem)
+        }
+    }
 
     fun getShopItem(id: Int){
         val item = getShopItemUseCase.getShopItem(id)
